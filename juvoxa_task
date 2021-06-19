@@ -1,0 +1,500 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 13.3
+-- Dumped by pg_dump version 13.3
+
+-- Started on 2021-06-19 22:12:46
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- TOC entry 3049 (class 1262 OID 16731)
+-- Name: juvoxa_task; Type: DATABASE; Schema: -; Owner: postgres
+--
+
+CREATE DATABASE juvoxa_task WITH TEMPLATE = template0 ENCODING = 'UTF8' LOCALE = 'English_United States.1252';
+
+
+ALTER DATABASE juvoxa_task OWNER TO postgres;
+
+\connect juvoxa_task
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- TOC entry 207 (class 1259 OID 16776)
+-- Name: doctor; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.doctor (
+    id integer NOT NULL,
+    doc_name character varying(100) NOT NULL,
+    doc_mail character varying(100) NOT NULL,
+    doc_pwd character varying(512) NOT NULL,
+    doc_token character varying(8) NOT NULL,
+    doc_hospital integer
+);
+
+
+ALTER TABLE public.doctor OWNER TO postgres;
+
+--
+-- TOC entry 206 (class 1259 OID 16774)
+-- Name: doctor_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.doctor_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.doctor_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 3050 (class 0 OID 0)
+-- Dependencies: 206
+-- Name: doctor_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.doctor_id_seq OWNED BY public.doctor.id;
+
+
+--
+-- TOC entry 205 (class 1259 OID 16760)
+-- Name: hospital; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.hospital (
+    id integer NOT NULL,
+    management_group integer,
+    location character varying(500) NOT NULL
+);
+
+
+ALTER TABLE public.hospital OWNER TO postgres;
+
+--
+-- TOC entry 204 (class 1259 OID 16758)
+-- Name: hospital_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.hospital_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.hospital_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 3051 (class 0 OID 0)
+-- Dependencies: 204
+-- Name: hospital_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.hospital_id_seq OWNED BY public.hospital.id;
+
+
+--
+-- TOC entry 201 (class 1259 OID 16734)
+-- Name: hospital_management; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.hospital_management (
+    id integer NOT NULL,
+    user_name character varying(100) NOT NULL,
+    user_mail character varying(100) NOT NULL,
+    user_pwd character varying(512) NOT NULL,
+    user_token character varying(8) NOT NULL
+);
+
+
+ALTER TABLE public.hospital_management OWNER TO postgres;
+
+--
+-- TOC entry 200 (class 1259 OID 16732)
+-- Name: hospital_management_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.hospital_management_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.hospital_management_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 3052 (class 0 OID 0)
+-- Dependencies: 200
+-- Name: hospital_management_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.hospital_management_id_seq OWNED BY public.hospital_management.id;
+
+
+--
+-- TOC entry 203 (class 1259 OID 16747)
+-- Name: patient; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.patient (
+    id integer NOT NULL,
+    pat_name character varying(100) NOT NULL,
+    pat_mail character varying(100) NOT NULL,
+    pat_pwd character varying(512) NOT NULL,
+    pat_token character varying(8) NOT NULL
+);
+
+
+ALTER TABLE public.patient OWNER TO postgres;
+
+--
+-- TOC entry 202 (class 1259 OID 16745)
+-- Name: patient_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.patient_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.patient_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 3053 (class 0 OID 0)
+-- Dependencies: 202
+-- Name: patient_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.patient_id_seq OWNED BY public.patient.id;
+
+
+--
+-- TOC entry 209 (class 1259 OID 16794)
+-- Name: prescription; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.prescription (
+    id integer NOT NULL,
+    doc_id integer,
+    pat_id integer,
+    dt_tm timestamp without time zone NOT NULL,
+    disease character varying(500),
+    findings character varying(1000),
+    suggestions character varying(1000),
+    medicines character varying(1000)
+);
+
+
+ALTER TABLE public.prescription OWNER TO postgres;
+
+--
+-- TOC entry 208 (class 1259 OID 16792)
+-- Name: prescription_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.prescription_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.prescription_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 3054 (class 0 OID 0)
+-- Dependencies: 208
+-- Name: prescription_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.prescription_id_seq OWNED BY public.prescription.id;
+
+
+--
+-- TOC entry 2882 (class 2604 OID 16779)
+-- Name: doctor id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.doctor ALTER COLUMN id SET DEFAULT nextval('public.doctor_id_seq'::regclass);
+
+
+--
+-- TOC entry 2881 (class 2604 OID 16763)
+-- Name: hospital id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.hospital ALTER COLUMN id SET DEFAULT nextval('public.hospital_id_seq'::regclass);
+
+
+--
+-- TOC entry 2879 (class 2604 OID 16737)
+-- Name: hospital_management id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.hospital_management ALTER COLUMN id SET DEFAULT nextval('public.hospital_management_id_seq'::regclass);
+
+
+--
+-- TOC entry 2880 (class 2604 OID 16750)
+-- Name: patient id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.patient ALTER COLUMN id SET DEFAULT nextval('public.patient_id_seq'::regclass);
+
+
+--
+-- TOC entry 2883 (class 2604 OID 16797)
+-- Name: prescription id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.prescription ALTER COLUMN id SET DEFAULT nextval('public.prescription_id_seq'::regclass);
+
+
+--
+-- TOC entry 3041 (class 0 OID 16776)
+-- Dependencies: 207
+-- Data for Name: doctor; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+INSERT INTO public.doctor (id, doc_name, doc_mail, doc_pwd, doc_token, doc_hospital) VALUES (1, 'Doctor Babu', 'doctor.sahab@gmail.com', '66b497be46f6e8a2ddf1cffba954725a6889ed8dbe51c1bb0c952a3e7d7c5962c7e22a6a101c4edc25d10a09fbee22c3c2f2853178dc4c7b61143c6bd3c02bee', 'f2ff0697', 1);
+INSERT INTO public.doctor (id, doc_name, doc_mail, doc_pwd, doc_token, doc_hospital) VALUES (2, 'Mera Doctor', 'mera.doctor@gmail.com', 'b7ed54c8d1d832f91a590a55fcdf620eb5623bed6023c8439cdd89f6666ef2c2737a5b6a9e9ddf671f04b929904cd2fd8c56229e0a117320307d1828a9b5d76d', '02f9a2e5', 2);
+
+
+--
+-- TOC entry 3039 (class 0 OID 16760)
+-- Dependencies: 205
+-- Data for Name: hospital; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+INSERT INTO public.hospital (id, management_group, location) VALUES (1, 1, 'Patia, Bhubaneswar');
+INSERT INTO public.hospital (id, management_group, location) VALUES (2, 1, 'Bermunda, Bhubaneswar');
+
+
+--
+-- TOC entry 3035 (class 0 OID 16734)
+-- Dependencies: 201
+-- Data for Name: hospital_management; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+INSERT INTO public.hospital_management (id, user_name, user_mail, user_pwd, user_token) VALUES (1, 'KIMS group', 'kims@gmail.com', 'fed0de2514882859ef33e7027cca31761143e95eb6569bd9270496720f8edae65b86ff4ab8ca5cfe2bca04cc49012c378e16698f2b697f8d90716896a564bebb', '2bcc3060');
+
+
+--
+-- TOC entry 3037 (class 0 OID 16747)
+-- Dependencies: 203
+-- Data for Name: patient; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+INSERT INTO public.patient (id, pat_name, pat_mail, pat_pwd, pat_token) VALUES (1, 'Asutosh Pati', 'asutosh.test@gmail.com', '867590a19b3a98318f8bbdad8ddd423550fde20ace7fa630faa26ed29d605d20373841032576efdcb64d6ae0c4be07a74834a7efd80188a8bea04114f170cb7d', 'c729fac3');
+
+
+--
+-- TOC entry 3043 (class 0 OID 16794)
+-- Dependencies: 209
+-- Data for Name: prescription; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+INSERT INTO public.prescription (id, doc_id, pat_id, dt_tm, disease, findings, suggestions, medicines) VALUES (1, 1, 1, '2021-06-19 14:39:08.759268', 'Malaria', 'high fever', 'bed rest', 'hydroxy chloroquine 10TAB');
+
+
+--
+-- TOC entry 3055 (class 0 OID 0)
+-- Dependencies: 206
+-- Name: doctor_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.doctor_id_seq', 2, true);
+
+
+--
+-- TOC entry 3056 (class 0 OID 0)
+-- Dependencies: 204
+-- Name: hospital_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.hospital_id_seq', 2, true);
+
+
+--
+-- TOC entry 3057 (class 0 OID 0)
+-- Dependencies: 200
+-- Name: hospital_management_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.hospital_management_id_seq', 1, true);
+
+
+--
+-- TOC entry 3058 (class 0 OID 0)
+-- Dependencies: 202
+-- Name: patient_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.patient_id_seq', 1, true);
+
+
+--
+-- TOC entry 3059 (class 0 OID 0)
+-- Dependencies: 208
+-- Name: prescription_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.prescription_id_seq', 1, true);
+
+
+--
+-- TOC entry 2895 (class 2606 OID 16786)
+-- Name: doctor doctor_doc_mail_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.doctor
+    ADD CONSTRAINT doctor_doc_mail_key UNIQUE (doc_mail);
+
+
+--
+-- TOC entry 2897 (class 2606 OID 16784)
+-- Name: doctor doctor_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.doctor
+    ADD CONSTRAINT doctor_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 2885 (class 2606 OID 16742)
+-- Name: hospital_management hospital_management_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.hospital_management
+    ADD CONSTRAINT hospital_management_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 2887 (class 2606 OID 16744)
+-- Name: hospital_management hospital_management_user_mail_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.hospital_management
+    ADD CONSTRAINT hospital_management_user_mail_key UNIQUE (user_mail);
+
+
+--
+-- TOC entry 2893 (class 2606 OID 16768)
+-- Name: hospital hospital_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.hospital
+    ADD CONSTRAINT hospital_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 2889 (class 2606 OID 16757)
+-- Name: patient patient_pat_mail_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.patient
+    ADD CONSTRAINT patient_pat_mail_key UNIQUE (pat_mail);
+
+
+--
+-- TOC entry 2891 (class 2606 OID 16755)
+-- Name: patient patient_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.patient
+    ADD CONSTRAINT patient_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 2899 (class 2606 OID 16802)
+-- Name: prescription prescription_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.prescription
+    ADD CONSTRAINT prescription_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 2901 (class 2606 OID 16787)
+-- Name: doctor doctor_doc_hospital_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.doctor
+    ADD CONSTRAINT doctor_doc_hospital_fkey FOREIGN KEY (doc_hospital) REFERENCES public.hospital(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 2900 (class 2606 OID 16769)
+-- Name: hospital hospital_management_group_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.hospital
+    ADD CONSTRAINT hospital_management_group_fkey FOREIGN KEY (management_group) REFERENCES public.hospital_management(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 2902 (class 2606 OID 16803)
+-- Name: prescription prescription_doc_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.prescription
+    ADD CONSTRAINT prescription_doc_id_fkey FOREIGN KEY (doc_id) REFERENCES public.doctor(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 2903 (class 2606 OID 16808)
+-- Name: prescription prescription_pat_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.prescription
+    ADD CONSTRAINT prescription_pat_id_fkey FOREIGN KEY (pat_id) REFERENCES public.patient(id) ON DELETE CASCADE;
+
+
+-- Completed on 2021-06-19 22:12:46
+
+--
+-- PostgreSQL database dump complete
+--
+
