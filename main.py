@@ -10,6 +10,7 @@
 
 """
 
+# import required modules
 from flask import Flask, request
 from flask_restful import Api, Resource, reqparse
 from flask_cors import CORS
@@ -19,11 +20,12 @@ from user_models import HospitalManagement, Hospital
 from user_models import Doctor, Patient, Prescription
 import hashlib
 
-
+# Create Flask App; Add API & CORS features
 app = Flask(__name__)
 api = Api(app)
 cors = CORS(app, resources={r"/api/v1/*": {"origins": "*"}})
 
+# Configure database details
 pg_user = 'postgres'    # user name for your postgres
 pg_pwd = 'superuser'    # password for postgres user
 pg_host = '127.0.0.1'   # hosted IP where postgres is hosted
@@ -33,6 +35,22 @@ app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://{pg_user}:{pg_pwd}@{pg_ho
 
 
 def validate_token(headers, valid_type):
+    """
+    Parameters
+    ----------
+    headers: str,
+        headers received with the request.
+    valid_type: str,
+        Type of user to be validated.
+
+    Returns
+    -------
+    None / tuple
+        Returns (tuple) appropriate message with status code if any problem with headers; otherwise if everything is
+        fine then returns None.
+
+    """
+    # check for missing headers
     if 'user_id' not in headers and 'user_token' not in headers:
         return {'message': 'Headers are missing'}, 401
     user_id = headers['user_id']
@@ -40,6 +58,7 @@ def validate_token(headers, valid_type):
     if user_id is None or user_token is None:
         return {'message': 'Headers are missing'}, 401
 
+    # validate tokens with database
     user = None
     if valid_type == 'M':
         user = HospitalManagement.query.filter(
@@ -50,28 +69,36 @@ def validate_token(headers, valid_type):
     elif valid_type == 'P':
         user = Patient.query.filter(Patient.id == user_id, Patient.pat_token == user_token).first()
 
+    # return the appropriate response
     if user is None:
         return {'message': 'Invalid authentication; Access Denied'}, 401
 
 
+# Create database in Postgres SQL DB before any request is accepted; execute only once, before first request.
 @app.before_first_request
 def create_tables():
     db.create_all()
 
 
+# handle 404 (resource not found) error
 @app.errorhandler(404)
 def handle_404(e):
     return {'message': 'Requested page not available'}, 404
 
 
-# @app.errorhandler(500)
-# def handle_500(e):
-#     return {'message': 'Something went wrong'}, 500
+# handle 505 (internal server error) error
+@app.errorhandler(500)
+def handle_500(e):
+    return {'message': 'Something went wrong'}, 500
 
 
 class HospitalManager(Resource):
     @staticmethod
     def post():
+        """
+        Creates a new hospital manager to handle all the features related to hospital;
+
+        """
         parser = reqparse.RequestParser()
         parser.add_argument('management_name', type=str, required=True,
                             help='Management can not be created without management name')
@@ -94,6 +121,10 @@ class HospitalManager(Resource):
 
     @staticmethod
     def get():
+        """
+        List of hospital managers;
+
+        """
         hosp_managers = HospitalManagement.query.all()
         if len(hosp_managers) > 0:
             manager_list = []
@@ -109,6 +140,10 @@ class HospitalManager(Resource):
 class Login(Resource):
     @staticmethod
     def post():
+        """
+        Login / authentication process for all type of users;
+
+        """
         parser = reqparse.RequestParser()
         parser.add_argument('email', type=str, required=True,
                             help='Registered email should be provided')
@@ -149,6 +184,10 @@ class Login(Resource):
 class HospitalBranch(Resource):
     @staticmethod
     def post():
+        """
+        Create a new hospital; can only created by hospital managers.
+
+        """
         validated_msg = validate_token(request.headers, 'M')
         if validated_msg is not None:
             return validated_msg
@@ -169,6 +208,10 @@ class HospitalBranch(Resource):
 
     @staticmethod
     def get():
+        """
+        List down all the hospital branches by hospital management groups;
+
+        """
         validated_msg = validate_token(request.headers, 'M')
         if validated_msg is not None:
             return validated_msg
@@ -189,6 +232,10 @@ class HospitalBranch(Resource):
 class DoctorsData(Resource):
     @staticmethod
     def post(doc_id):
+        """
+        On-board new doctors to existing hospital branches; can only be done by managers.
+
+        """
         validated_msg = validate_token(request.headers, 'M')
         if validated_msg is not None:
             return validated_msg
@@ -225,6 +272,13 @@ class DoctorsData(Resource):
 
     @staticmethod
     def get(doc_id):
+        """
+        Check a doctor's details; everyone can view details like doctor's name, employed hospital branch, only the
+        doctor can see it's email id.
+        ** if doctor id is -1; then a list of doctors will be shown who work under same hospital management group, this
+        can be only accessed by hospital managers.
+
+        """
         try:
             doc_id = int(doc_id)
         except ValueError:
@@ -271,6 +325,10 @@ class DoctorsData(Resource):
 class PatientsData(Resource):
     @staticmethod
     def post(pat_id):
+        """
+        Register a new patient;
+
+        """
         if pat_id != '0':
             return {'message': 'Patient id needs to be 0 to create new patient'}, 400
 
@@ -295,6 +353,11 @@ class PatientsData(Resource):
 
     @staticmethod
     def get(pat_id):
+        """
+        Get a patient's detail by patient id;
+        ** List of all patients can be shown if patient id is -1.
+
+        """
         try:
             pat_id = int(pat_id)
         except ValueError:
@@ -323,6 +386,10 @@ class PatientsData(Resource):
 class PrescriptionData(Resource):
     @staticmethod
     def post(rx_id):
+        """
+        Generate a new prescription; prescription can be generated by providing doctor id.
+
+        """
         validated_msg = validate_token(request.headers, 'P')
         if validated_msg is not None:
             return validated_msg
@@ -347,6 +414,12 @@ class PrescriptionData(Resource):
 
     @staticmethod
     def get(rx_id):
+        """
+        See a prescription by providing prescription id.
+        ** if prescription id is -1 then all prescriptions for a specific patient can be shown, this can only be
+        accessed by patients.
+
+        """
         try:
             rx_id = int(rx_id)
         except ValueError:
@@ -484,6 +557,10 @@ class PrescriptionData(Resource):
 
     @staticmethod
     def put(rx_id):
+        """
+        Doctors can update the prescription after their observation;
+
+        """
         try:
             rx_id = int(rx_id)
         except ValueError:
@@ -518,11 +595,16 @@ class PrescriptionData(Resource):
 
 
 if __name__ == '__main__':
+    # initialize the SQLAlchemy
     db.init_app(app)
+
+    # map the resources with URL path
     api.add_resource(HospitalManager, '/manage-hospital')
     api.add_resource(Login, '/login')
     api.add_resource(HospitalBranch, '/hospital-branch')
     api.add_resource(PatientsData, '/patient/<string:pat_id>')
     api.add_resource(DoctorsData, '/doctor/<string:doc_id>')
     api.add_resource(PrescriptionData, '/appointment/<string:rx_id>')
+
+    # start the flask app in production environment
     app.run('0.0.0.0', 5555)
